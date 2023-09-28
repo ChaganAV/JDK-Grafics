@@ -16,6 +16,7 @@ public class GameWindow extends JFrame {
     GameWindow(){
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         //setLocation(WINDOW_POSX,WINDOW_POSY);
+        //setLocationRelativeTo(null);
         setLocation(GraphicsEnvironment.getLocalGraphicsEnvironment().getCenterPoint());
         setSize(WINDOW_WIDTH,WINDOW_HEIGHT);
         setTitle("Крестики-нолики");

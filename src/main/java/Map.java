@@ -10,7 +10,7 @@ public class Map extends JPanel {
     private int panelHeight;
     private int cellHeight;
     private int cellWidth;
-    private static final Random RANDOM = null;
+    private static final Random RANDOM = new Random();
     private final int HUMAN_DOT = 1;
     private final int AI_DOT = 2;
     private final int EMPTY_DOT = 0;
@@ -39,14 +39,13 @@ public class Map extends JPanel {
                 update(e);
             }
         });
-        initMap();
         isInitialized = false;
     }
     private void update(MouseEvent e){
-        if(isGameOver || isInitialized) return;
+        if(isGameOver || !isInitialized) return;
         int cellX = e.getX() / cellWidth;
         int cellY = e.getY() / cellHeight;
-        if(!isValudCell(cellX,cellY) || !isEmptyCell(cellX,cellY)) return;
+        if(!isValidCell(cellX,cellY) || !isEmptyCell(cellX,cellY)) return;
 
         field[cellY][cellX] = HUMAN_DOT;
         System.out.printf("getX=%d, getY=%d, cellWidth=%d, cellHeight=%d, x=%d, y=%d\n",
@@ -60,10 +59,19 @@ public class Map extends JPanel {
         repaint();
         if(checkEndGame(AI_DOT,STATE_WIN_AI)) return;
     }
+
+    /**
+     * запускает новую игру
+     * инициализирует игровое поле
+     * @param mode режим игры Игра с человеком или компьютером
+     * @param fSzX размер ширины поля
+     * @param fSzY размер высоты поля
+     * @param wLen длина строки для Победы
+     */
     void startNewGame(int mode, int fSzX, int fSzY, int wLen){
         System.out.printf("Mode: %d;\nSize: x=%d, y=%d;\nWin Length: %d",
                 mode,fSzX,fSzY,wLen);
-        initMap();
+        initMap(fSzX);
         isGameOver = false;
         isInitialized = true;
         repaint();
@@ -92,7 +100,7 @@ public class Map extends JPanel {
         super.paintComponent(g);
         render(g);
     }
-    private void initMap(){
+    private void initMap(int size){
         fieldSizeY = 3;
         fieldSizeX = 3;
         field = new char[fieldSizeY][fieldSizeX];
@@ -102,7 +110,7 @@ public class Map extends JPanel {
             }
         }
     }
-    private boolean isValudCell(int x, int y){
+    private boolean isValidCell(int x, int y){
         return x >= 0 && x < fieldSizeX && y >= 0 && y <fieldSizeY;
     }
     private boolean isEmptyCell(int x, int y){
@@ -169,6 +177,7 @@ public class Map extends JPanel {
         // отрисовка
         for (int y = 0; y < fieldSizeY; y++) {
             for (int x = 0; x < fieldSizeX; x++) {
+                if(field[y][x] == EMPTY_DOT) continue;
                 if(field[y][x] == HUMAN_DOT){
                     g.setColor(Color.blue);
                     g.fillOval(x * cellWidth + DOT_PADDING,

@@ -10,7 +10,9 @@ public class SettingWindow extends JFrame {
     private static final int WINDOW_WIDTH = 350;
     private static final String CHOICE_MODE_GAME = "Выберите режим игры";
     private static final String LABEL_HUMAN_HUMAN = "Человек и Человек";
+    private final int MODE_HH = 1;
     private static final String LABEL_HUMAN_AI = "Человек и компьютер";
+    private final int MODE_HI = 0;
     private static final String STRING_NEW_GAME = "Новая игра";
     private static final String SELECT_SIZE_SPACE = "Установленный размер поля:";
     private static final String CHOICE_SIZE_SPACE = "Выберите размеры поля";
@@ -25,17 +27,24 @@ public class SettingWindow extends JFrame {
     SettingWindow(GameWindow gameWindow){
         int centerWindowX = gameWindow.getX() + gameWindow.getWidth()/2;
         int centerWindowY = gameWindow.getY() + gameWindow.getHeight()/2;
+        int modeGame = 0;
 
         setLocation(centerWindowX - WINDOW_WIDTH/2,centerWindowY - WINDOW_HEIGHT/2);
         setSize(WINDOW_WIDTH,WINDOW_HEIGHT);
 
         JPanel panelChoiceMode = (JPanel) createPanelChoiceMode();
         JPanel panelSize = (JPanel) createPanelSizeSpace();
-
+        if (btnHumanAI.isSelected())
+            modeGame = MODE_HI;
+        else{
+            modeGame = MODE_HH;
+        }
+        int finalModeGame = modeGame;
         btnStart.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                gameWindow.startNewGame(0,3,3,3);
+
+                gameWindow.startNewGame(finalModeGame,3,3,3);
                 setVisible(false);
             }
         });

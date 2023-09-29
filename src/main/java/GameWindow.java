@@ -44,6 +44,14 @@ public class GameWindow extends JFrame {
 
         setVisible(true);
     }
+
+    /**
+     * Старт новой игры
+     * @param mode режим игры: человек и компьютер или человек и человек
+     * @param fSzX ось X
+     * @param fSzY ось Y
+     * @param wLen длина линии
+     */
     void startNewGame(int mode, int fSzX, int fSzY, int wLen){
         map.startNewGame(mode,fSzX,fSzY,wLen);
     }

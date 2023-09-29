@@ -31,6 +31,7 @@ public class Map extends JPanel {
     private static final String MSG_WIN_HUMAN = "Победил игрок!";
     private static final String MSG_WIN_AI = "Победил компьютер";
     private static final String MSG_DRAW = "Ничья";
+    private static int LINE_VICTORY = 3;
 
     Map() {
         addMouseListener(new MouseAdapter() {
@@ -41,6 +42,11 @@ public class Map extends JPanel {
         });
         isInitialized = false;
     }
+
+    /**
+     * Обновление по результатам хода игрока
+     * @param e событие мышки
+     */
     private void update(MouseEvent e){
         if(isGameOver || !isInitialized) return;
         int cellX = e.getX() / cellWidth;
@@ -61,7 +67,7 @@ public class Map extends JPanel {
     }
 
     /**
-     * запускает новую игру
+     * старт новой игры
      * инициализирует игровое поле
      * @param mode режим игры Игра с человеком или компьютером
      * @param fSzX размер ширины поля
@@ -71,13 +77,20 @@ public class Map extends JPanel {
     void startNewGame(int mode, int fSzX, int fSzY, int wLen){
         System.out.printf("Mode: %d;\nSize: x=%d, y=%d;\nWin Length: %d",
                 mode,fSzX,fSzY,wLen);
-        initMap(fSzX);
+        initMap(fSzX,wLen);
         isGameOver = false;
         isInitialized = true;
         repaint();
     }
+
+    /**
+     * Завершение игры по итогам проверки
+     * @param dot фишка
+     * @param gameOverType
+     * @return
+     */
     private boolean checkEndGame(int dot, int gameOverType){
-        if (checkWin(dot)){
+        if (checkVictory(dot)){
             this.gameOverType = gameOverType;
             isGameOver = true;
             repaint();
@@ -100,9 +113,15 @@ public class Map extends JPanel {
         super.paintComponent(g);
         render(g);
     }
-    private void initMap(int size){
-        fieldSizeY = 3;
-        fieldSizeX = 3;
+
+    /**
+     * Инициализация игрового поля
+     * @param size количество ячеек
+     */
+    private void initMap(int size, int sizeLineVictory){
+        fieldSizeY = size;
+        fieldSizeX = size;
+        LINE_VICTORY = sizeLineVictory;
         field = new char[fieldSizeY][fieldSizeX];
         for (int i = 0; i < fieldSizeY; i++) {
             for (int j = 0; j < fieldSizeX; j++) {
@@ -125,24 +144,111 @@ public class Map extends JPanel {
         field[y][x] = AI_DOT;
         repaint();
     }
-    
-    private boolean checkWin(int c){
+
+    /**
+     * Проверка
+     * @param c
+     * @return
+     */
+    private boolean checkVictory(int c){
+        if(checkByHorizont(c)) return true;
+        if(checkByVertical(c)) return true;
+        if(checkByDiagonalRight(c)) return true;
+        if(checkByDiagonalLeft(c)) return true;
+        return false;
+    }
+
+    /**
+     * Проверка по горизонтали, по оси X
+     * @param c индекс фишки
+     * @return возврат булево
+     */
+    private boolean checkByHorizont(int c){
         int count = 0;
         for (int y = 0; y < fieldSizeY; y++) {
             for (int x = 0; x < fieldSizeX; x++) {
                 if (field[y][x] == c) count++;
             }
-            if(count == fieldSizeX) return true;
+            if(count == LINE_VICTORY)
+                return true;
+            else{
+                count = 0;
+            }
         }
-        count = 0;
+        return false;
+    }
+
+    /**
+     * проверка линии по вертикали, по оси Y
+     * @param c индекс фишки
+     * @return возврат булево
+     */
+    private boolean checkByVertical(int c){
+        int count = 0;
         for (int x = 0; x < fieldSizeX; x++) {
             for (int y = 0; y < fieldSizeY; y++) {
                 if(field[y][x] == c) count++;
             }
-            if(count == fieldSizeY) return true;
+            if(count == LINE_VICTORY)
+                return true;
+            else{
+                count = 0;
+            }
         }
         return false;
     }
+
+    /**
+     * Проверка по диагонали направо
+     * @param c индекс фишки
+     * @return возвратит булево
+     */
+    private boolean checkByDiagonalRight(int c){
+        int count = 0;
+        for (int y = 0; y < fieldSizeY; y++) {
+            for (int x = 0; x < fieldSizeX; x++) {
+                if(y == x){
+                    if(field[y][x] == c){
+                        count++;
+                        if(count == LINE_VICTORY) return true;
+                    }
+                    else{
+                        count = 0;
+                    }
+                } else{
+                    continue;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Проверка по диагонали налево
+     * @param c индекс фишки
+     * @return возврат булево
+     */
+    private boolean checkByDiagonalLeft(int c){
+        int count = 0;
+        for (int y = 0; y < fieldSizeY; y++) {
+            for (int x = 0; x < fieldSizeX; x++) {
+                if(y+x == LINE_VICTORY-1){
+                    if(field[y][x] == c){
+                        count++;
+                        if(count == LINE_VICTORY) return true;
+                    }else{
+                        count = 0;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Проверка на наличие пустых полей
+     * @return возврат булево
+     */
     private boolean isMapFull(){
         for (int i = 0; i < fieldSizeY; i++) {
             for (int j = 0; j < fieldSizeX; j++) {
@@ -160,17 +266,17 @@ public class Map extends JPanel {
         if(!isInitialized) return;
         this.panelWidth = getWidth();
         this.panelHeight = getHeight();
-        cellHeight = panelHeight / 3;
-        cellWidth = panelWidth / 3;
+        cellHeight = panelHeight / fieldSizeY;
+        cellWidth = panelWidth / fieldSizeX;
 
         g.setColor(Color.BLACK);
         // горизонтальная
-        for(int h = 0; h < 3; h++){
+        for(int h = 0; h < fieldSizeX; h++){
             int y = h * cellHeight;
             g.drawLine(0,y,panelWidth,y);
         }
         // вертикальная
-        for (int w = 0; w < 3; w++) {
+        for (int w = 0; w < fieldSizeY; w++) {
             int x = w * cellHeight;
             g.drawLine(x,0,x,panelHeight);
         }
@@ -200,6 +306,11 @@ public class Map extends JPanel {
             showMessageGameOver(g);
         }
     }
+
+    /**
+     * Вывод сообщение о результате игры
+     * @param g графический элемент
+     */
     private void showMessageGameOver(Graphics g){
         g.setColor(Color.darkGray);
         g.fillRect(0, 200, getWidth(),70);

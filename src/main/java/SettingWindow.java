@@ -20,6 +20,8 @@ public class SettingWindow extends JFrame {
     private static final String SELECTED_SIZE_SPACE = "Установленная длина:";
     private static final int SPACE_MIN_SIZE = 3;
     private static final int SPACE_MAX_SIZE = 10;
+    private int size_space = SPACE_MIN_SIZE;
+    private int size_victory = SPACE_MIN_SIZE;
     JRadioButton btnHumanHuman;
     JRadioButton btnHumanAI;
     ButtonGroup btnGroup;
@@ -44,7 +46,7 @@ public class SettingWindow extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
 
-                gameWindow.startNewGame(finalModeGame,3,3,3);
+                gameWindow.startNewGame(finalModeGame,size_space,size_space,size_victory);
                 setVisible(false);
             }
         });
@@ -52,6 +54,11 @@ public class SettingWindow extends JFrame {
         add(panelSize);
         add(btnStart, BorderLayout.SOUTH);
     }
+
+    /**
+     * Панель выбора режима
+     * @return возвращает компонент панели
+     */
     private Component createPanelChoiceMode(){
         JPanel panel = new JPanel(new GridLayout(3,1));
         JLabel label = new JLabel(CHOICE_MODE_GAME);
@@ -67,6 +74,11 @@ public class SettingWindow extends JFrame {
         panel.add(btnHumanAI);
         return panel;
     }
+
+    /**
+     * Панель выбора размера поля
+     * @return возвращает компонент панели
+     */
     private Component createPanelSizeSpace(){
         JPanel panel = new JPanel(new GridLayout(3,1));
         JLabel labelChoice = new JLabel(CHOICE_SIZE_SPACE);
@@ -77,6 +89,7 @@ public class SettingWindow extends JFrame {
             public void stateChanged(ChangeEvent e) {
                 int sliderValue = slider.getValue();
                 labelSize.setText(SELECT_SIZE_SPACE + " " + sliderValue);
+                size_space = sliderValue;
             }
         });
         panel.add(labelChoice);
